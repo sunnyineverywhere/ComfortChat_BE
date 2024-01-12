@@ -6,38 +6,40 @@ from dotenv import load_dotenv
 from fastapi import HTTPException
 
 
-def create_jwt(member_id: int):
-    return get_jwt_secret(member_id)
+def create_jwt(account_id: int):
+    return get_jwt_secret(account_id)
 
 
 def decode_jwt(access_token: str):
+    if not access_token:
+        return None
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     load_dotenv(os.path.join(BASE_DIR, "../.env"))
     SECRET = os.environ.get("JWT_SECRET")
-    member_info = ""
+    account = 0
     try:
-        member_info = jwt.decode(access_token, SECRET, algorithms='HS512')
+        account = jwt.decode(access_token, SECRET, algorithms='HS512')['account_id']
     except:
         raise HTTPException(status_code=401, detail="Token Expired")
-    return member_info
+    return account
 
 
-def get_jwt_secret(member_id: int):
+def get_jwt_secret(account_id: int):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     load_dotenv(os.path.join(BASE_DIR, "../.env"))
     SECRET = os.environ.get("JWT_SECRET")
     access_token = jwt.encode(
         {
-            "member_id": member_id,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=172800)
+            "account_id": account_id,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=17280000)
         },
         SECRET,
         algorithm="HS512"
     )
     refresh_token = jwt.encode(
         {
-            "member_id": member_id,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=400000)
+            "account_id": account_id,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=40000000)
         },
         SECRET,
         algorithm="HS512"

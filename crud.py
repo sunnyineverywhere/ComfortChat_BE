@@ -5,12 +5,18 @@ from passlib.context import CryptContext
 from model import Account, Chat
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 # account
 def find_account_by_email(db: Session, email: str):
     db_account = db.query(Account).filter(email == Account.email)
     if db_account:
         for account in db_account:
             return account
+
+
+def find_account(db: Session, id: int):
+    return db.query(Account).filter(id == Account.id).first()
 
 
 def create_user(new_user: AccountCreateReq, db: Session):
