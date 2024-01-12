@@ -9,4 +9,4 @@ echo "> Build Docker Image"
 sudo docker build -t comfortchat .
 
 echo "> Run Docker Container"
-sudo docker run --name api -p 80:80 comfortchat
+sudo docker run --name api -d -p 80:80 comfortchat
