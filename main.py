@@ -1,10 +1,13 @@
 import json
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from starlette.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 import database
 import scheme
+from model import Account, Chat
 from util import gpt_util
+import crud
 
 app = FastAPI()
 app.add_middleware(
@@ -31,7 +34,20 @@ async def root():
 
 
 @app.post("/chats/text")
-async def add_chat(req: scheme.ChatCreateTextReq):
-    response = gpt_util.get_gpt_answer(question=req.question)
+async def add_chat(req: scheme.ChatCreateTextReq, db: Session = Depends(get_db)):
+    response = json.loads(gpt_util.get_gpt_answer(question=req.question))
+    print(response)
+    chat = crud.create_chat(db=db, chat=Chat(
+        question=req.question,
+        answer=response["answer"],
+        keyword=response["keyword"],
+        isOkay=response["isOkay"]
+    ))
 
-    return json.loads(response)
+    return scheme.ChatResponse(
+        id=chat.id,
+        question=chat.question,
+        answer=chat.answer,
+        isOkay=chat.isOkay,
+        keyword=chat.keyword
+    )

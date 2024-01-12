@@ -1,5 +1,4 @@
-from pymysql import TIMESTAMP
-from sqlalchemy import Boolean, Column, ForeignKey, Date, DateTime, String, BigInteger, func
+from sqlalchemy import Boolean, Column, TIMESTAMP, func, ForeignKey, Date, DateTime, String, BigInteger, func
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -23,3 +22,4 @@ class Chat(Base):
     isOkay = Column(Boolean)
     Column(TIMESTAMP, server_default=func.current_timestamp())
     account = Column(BigInteger, ForeignKey('account.id'))
+    accountEntity = relationship("Account", backref="a")
