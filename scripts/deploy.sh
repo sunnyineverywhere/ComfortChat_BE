@@ -2,7 +2,7 @@ cd ../
 
 git pull
 
-sudo docker rm $(sudo docker ps -aq)
+sudo docker rm -f $(sudo docker ps -aq)
 
 echo "> Build Docker Image"
 sudo docker build -t comfortchat .
