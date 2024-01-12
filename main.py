@@ -1,11 +1,19 @@
-from fastapi import FastAPI
+
 from fastapi import APIRouter, Depends, status, HTTPException, Response, Request
+import json
+
+from fastapi import FastAPI, Depends, UploadFile
 from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-
-import crud
 import database
+import shutil
+import os
 import scheme
+from model import Account, Chat
+from util import gpt_util, whisper_util
+
+UPLOAD_DIR = "/tmp"
+import crud
 
 app = FastAPI()
 app.add_middleware(
@@ -30,7 +38,6 @@ async def get_db():
 async def root():
     return {"message": "Hello! We are ComfortChat!"}
 
-
 @app.post("/user")
 async def signup(new_user: scheme.AccountCreateReq, db: Session = Depends(get_db)):
     user = crud.find_account_by_email(email=new_user.email, db=db)
@@ -42,4 +49,51 @@ async def signup(new_user: scheme.AccountCreateReq, db: Session = Depends(get_db
     return HTTPException(status_code=status.HTTP_200_OK, detail="Signup successful")
 
 
+@app.post("/chats/text")
+async def add_chat(req: scheme.ChatCreateTextReq, db: Session = Depends(get_db)):
+    response = json.loads(gpt_util.get_gpt_answer(question=req.question))
+    print(response)
+    chat = crud.create_chat(db=db, chat=Chat(
+        question=req.question,
+        answer=response["answer"],
+        keyword=response["keyword"],
+        isOkay=response["isOkay"]
+    ))
+
+    return scheme.ChatResponse(
+        id=chat.id,
+        question=chat.question,
+        answer=chat.answer,
+        isOkay=chat.isOkay,
+        keyword=chat.keyword
+    )
+
+
+@app.post("/chats/voice")
+async def add_chat_voice(file: UploadFile, db: Session = Depends(get_db)):
+    filename = file.filename
+    file_obj = file.file
+    upload_name = os.path.join(UPLOAD_DIR, filename)
+    upload_file = open(upload_name, 'wb+')
+    shutil.copyfileobj(file_obj, upload_file)
+    upload_file.close()
+
+    question = whisper_util.translate_answer_audio(file=upload_name)
+    response = json.loads(gpt_util.get_gpt_answer(question=question))
+    print(response)
+
+    chat = crud.create_chat(db=db, chat=Chat(
+        question=question,
+        answer=response["answer"],
+        keyword=response["keyword"],
+        isOkay=response["isOkay"]
+    ))
+
+    return scheme.ChatResponse(
+        id=chat.id,
+        question=chat.question,
+        answer=chat.answer,
+        isOkay=chat.isOkay,
+        keyword=chat.keyword
+    )
 
