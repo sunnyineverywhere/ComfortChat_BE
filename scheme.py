@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from model import Chat
 
 
+class MemberSignInfo(BaseModel):
+    email: str
+    password: str
+
 class AccountCreateReq(BaseModel):
     email: str
     password: str

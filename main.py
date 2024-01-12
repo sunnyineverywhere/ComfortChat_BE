@@ -11,6 +11,9 @@ import os
 import scheme
 from model import Account, Chat
 from util import gpt_util, whisper_util
+import bcrypt
+from fastapi.responses import JSONResponse
+from util import jwt_util
 
 UPLOAD_DIR = "/tmp"
 import crud
@@ -47,6 +50,21 @@ async def signup(new_user: scheme.AccountCreateReq, db: Session = Depends(get_db
     crud.create_user(new_user, db)
 
     return HTTPException(status_code=status.HTTP_200_OK, detail="Signup successful")
+
+
+@app.post("/members/signin")
+async def member_sign_in(req: scheme.MemberSignInfo, db: Session = Depends(get_db)):
+    member = crud.find_account_by_email(email=req.email, db=db)
+    if not bcrypt.checkpw(req.password.encode('utf-8'), member.password.encode('utf-8')):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                            content={"message": "Your email or password is not valid."})
+    access_token, refresh_token = jwt_util.create_jwt(member.email)
+    return {
+        "message": "Sign In Request Successes",
+        "access_token": access_token,
+        "refresh_token": refresh_token
+    }
+
 
 
 @app.post("/chats/text")
