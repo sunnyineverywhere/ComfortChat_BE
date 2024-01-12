@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+import database
+
 
 app = FastAPI()
 app.add_middleware(
@@ -10,6 +12,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.redirect_slashes = False
+
+
+def get_db():
+    db = database.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.get("/hello")
