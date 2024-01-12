@@ -36,3 +36,7 @@ def create_chat(db: Session, chat: Chat):
     db.commit()
     db.refresh(chat)
     return chat
+
+
+def find_all_chat(account_id, db):
+    return db.query(Chat).filter(account_id == Chat.account).order_by(Chat.createdAt.desc()).all()
