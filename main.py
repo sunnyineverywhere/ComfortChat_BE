@@ -63,6 +63,12 @@ async def account_sign_in(req: scheme.AccountSignInfo, db: Session = Depends(get
         "refresh_token": refresh_token
     }
 
+@app.get("/chats")
+async def get_chats(Authorization: str = Header(default=None), db: Session = Depends(get_db)):
+    account_id = jwt_util.decode_jwt(Authorization)
+    chat_list = crud.find_all_chat(account_id=account_id, db=db)
+    return chat_list
+
 
 @app.post("/chats/text")
 async def add_chat(req: scheme.ChatCreateTextReq, Authorization: str = Header(default=None),
