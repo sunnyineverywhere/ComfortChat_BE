@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from model import Chat
 
 
-class MemberSignInfo(BaseModel):
+class AccountSignInfo(BaseModel):
     email: str
     password: str
 

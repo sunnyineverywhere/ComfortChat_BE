@@ -52,13 +52,13 @@ async def signup(new_user: scheme.AccountCreateReq, db: Session = Depends(get_db
     return HTTPException(status_code=status.HTTP_200_OK, detail="Signup successful")
 
 
-@app.post("/members/signin")
-async def member_sign_in(req: scheme.MemberSignInfo, db: Session = Depends(get_db)):
-    member = crud.find_account_by_email(email=req.email, db=db)
-    if not bcrypt.checkpw(req.password.encode('utf-8'), member.password.encode('utf-8')):
+@app.post("/accounts/signin")
+async def account_sign_in(req: scheme.AccountSignInfo, db: Session = Depends(get_db)):
+    account = crud.find_account_by_email(email=req.email, db=db)
+    if not bcrypt.checkpw(req.password.encode('utf-8'), account.password.encode('utf-8')):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
                             content={"message": "Your email or password is not valid."})
-    access_token, refresh_token = jwt_util.create_jwt(member.email)
+    access_token, refresh_token = jwt_util.create_jwt(account.email)
     return {
         "message": "Sign In Request Successes",
         "access_token": access_token,
