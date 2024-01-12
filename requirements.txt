@@ -13,3 +13,4 @@ python-multipart
 websockets
 pybase64
 gunicorn
+passlib
