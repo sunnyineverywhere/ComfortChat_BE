@@ -68,7 +68,6 @@ async def account_sign_in(req: scheme.AccountSignInfo, db: Session = Depends(get
 async def add_chat(req: scheme.ChatCreateTextReq, Authorization: str = Header(default=None),
                    db: Session = Depends(get_db)):
     account_id = jwt_util.decode_jwt(Authorization)
-
     response = json.loads(gpt_util.get_gpt_answer(question=req.question))
     chat = crud.create_chat(db=db, chat=Chat(
         question=req.question,
@@ -94,7 +93,9 @@ async def add_chat(req: scheme.ChatCreateTextReq, Authorization: str = Header(de
 
 
 @app.post("/chats/voice")
-async def add_chat_voice(file: UploadFile, db: Session = Depends(get_db)):
+async def add_chat_voice(file: UploadFile, Authorization: str = Header(default=None),
+                         db: Session = Depends(get_db)):
+    account_id = jwt_util.decode_jwt(Authorization)
     filename = file.filename
     file_obj = file.file
     upload_name = os.path.join(UPLOAD_DIR, filename)
@@ -111,6 +112,12 @@ async def add_chat_voice(file: UploadFile, db: Session = Depends(get_db)):
         keyword=response["keyword"],
         isOkay=response["isOkay"]
     ))
+
+    if account_id:
+        await mail_util.send_email(
+            receiver=crud.find_account(db, account_id).guardian,
+            chat=chat
+        )
 
     return scheme.ChatResponse(
         id=chat.id,

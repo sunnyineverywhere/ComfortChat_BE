@@ -11,7 +11,7 @@ def create_jwt(account_id: int):
 
 
 def decode_jwt(access_token: str):
-    if not access_token:
+    if len(access_token) == 0:
         return None
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     load_dotenv(os.path.join(BASE_DIR, "../.env"))
