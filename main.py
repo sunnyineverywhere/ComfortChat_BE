@@ -40,7 +40,6 @@ async def root():
 @app.post("/chats/text")
 async def add_chat(req: scheme.ChatCreateTextReq, db: Session = Depends(get_db)):
     response = json.loads(gpt_util.get_gpt_answer(question=req.question))
-    print(response)
     chat = crud.create_chat(db=db, chat=Chat(
         question=req.question,
         answer=response["answer"],
@@ -68,7 +67,6 @@ async def add_chat_voice(file: UploadFile, db: Session = Depends(get_db)):
 
     question = whisper_util.translate_answer_audio(file=upload_name)
     response = json.loads(gpt_util.get_gpt_answer(question=question))
-    print(response)
 
     chat = crud.create_chat(db=db, chat=Chat(
         question=question,
