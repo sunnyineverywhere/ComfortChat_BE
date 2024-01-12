@@ -1,4 +1,6 @@
+
 from sqlalchemy import Boolean, Column, TIMESTAMP, func, ForeignKey, Date, DateTime, String, BigInteger, func
+
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -11,6 +13,7 @@ class Account(Base):
     password = Column(String)
     name = Column(String)
     guardian = Column(String)
+
 
 
 class Chat(Base):
