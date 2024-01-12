@@ -15,4 +15,3 @@ pybase64
 gunicorn
 passlib
 secure-smtplib
-email
