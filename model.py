@@ -23,6 +23,6 @@ class Chat(Base):
     answer = Column(String)
     keyword = Column(String)
     isOkay = Column(Boolean)
-    Column(TIMESTAMP, server_default=func.current_timestamp())
+    createdAt = Column(TIMESTAMP, server_default=func.current_timestamp())
     account = Column(BigInteger, ForeignKey('account.id'))
     accountEntity = relationship("Account", backref="a")
