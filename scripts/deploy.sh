@@ -1,5 +1,4 @@
-REPOSITORY=/home/ubuntu/app
-cd $REPOSITORY
+cd ../
 
 git pull
 
