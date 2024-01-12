@@ -14,3 +14,5 @@ websockets
 pybase64
 gunicorn
 passlib
+smtplib
+email
